@@ -1,0 +1,77 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/dem_5dp"
+    tools:context=".NoteActivity" >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:background="#000000"
+        android:orientation="vertical" >
+
+        <EditText
+            android:id="@+id/note_title"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:background="#ffffff"
+            android:ems="10"
+            android:hint="The title" />
+
+        <EditText
+            android:id="@+id/note_editor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.29"
+            android:background="@drawable/note_editor_bg_blue"
+            android:ems="10"
+            android:gravity="left|top"
+            android:inputType="textMultiLine" >
+
+            <requestFocus />
+        </EditText>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="3dp" >
+
+            <Button
+                android:id="@+id/back"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/back"
+                android:onClick="back" />
+
+            <Button
+                android:id="@+id/save_btn"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/save_img"
+                android:onClick="update_delete_Note" />
+
+            <Button
+                android:id="@+id/color_changer"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:background="#A9F5F2"
+                android:onClick="change_color"
+                android:padding="5dp" />
+
+            <Button
+                android:id="@+id/delete_btn"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/delete"
+                android:onClick="delete" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
