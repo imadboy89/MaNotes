@@ -99,12 +99,12 @@ public class Notes {
 				btn.setText(newNote.getTitle());
 				int sdk = android.os.Build.VERSION.SDK_INT;
 				if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-					LinearLayout ly = (LinearLayout) btn.getParent();
+					LinearLayout ly = (LinearLayout) btn.getParent().getParent();
 					ly.setBackgroundDrawable(act.getResources().getDrawable(act.BUTTON_BG.get(newNote.getColor())));
 					
 				} else {
 					
-					LinearLayout ly = (LinearLayout) btn.getParent();
+					LinearLayout ly = (LinearLayout) btn.getParent().getParent();
 					ly.setBackground(act.getResources().getDrawable(act.BUTTON_BG.get(newNote.getColor())));
 				}
 				res = 1;
@@ -120,7 +120,7 @@ public class Notes {
 		int r = n.delete(act);
 		int btn_id = getBtnByNote(n.getId());
 		View v = (View) act.findViewById(btn_id);
-		((ViewManager)v.getParent().getParent()).removeView((View) v.getParent());
+		((ViewManager)v.getParent().getParent().getParent()).removeView((View) v.getParent().getParent());
 		if (r>0)
 			act.toast("Deleted succefuly");
 		else
@@ -130,7 +130,7 @@ public class Notes {
 		act.buttons_id = 0;
 		
 		dao.open();
-		String[] cols=new String[]{"id","title","note","cat","date_added","color"};
+		String[] cols=new String[]{"id","title","note","cat","date_added","date_updated","color"};
 		List<Hashtable> notes = dao.getAll("notes", cols);
 		for( Hashtable note : notes ) {
 			//Enumeration<String> enumKey = note.keys();
@@ -141,12 +141,13 @@ public class Notes {
 					(String) note.get("title"),
 					(String) note.get("note"),
 					(String) note.get("date_added"),
+					(String) note.get("date_updated"),
 					Integer.parseInt((String) note.get("cat")),
 					(String) note.get("color")
 					);
 			this.notes.add(n);
 			//i.i("where", n.getTitle());
-			int buttonId = act.addButton( n.getTitle(),n.getColor());
+			int buttonId = act.addButton( n);
 			act.buttons_notes.put(buttonId, Integer.parseInt((String) note.get("id")) );
 		}
 		dao.close();

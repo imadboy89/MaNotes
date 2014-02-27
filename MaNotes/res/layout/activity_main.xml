@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg"
+    android:background="#000000"
     android:padding="@dimen/dem_5dp"
     tools:context=".MainActivity" >
 
@@ -19,7 +19,8 @@
             android:id="@+id/scrollView1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.61" >
+            android:layout_weight="0.61"
+            android:background="#000000" >
 
             <LinearLayout
                 android:id="@+id/lnrl"
@@ -32,14 +33,16 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="64dp" 
+            android:gravity="center"
+            >
 
             <Button
                 android:id="@+id/Add_new_Btn"
-                android:layout_width="44dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="openNote"
-                android:background="@drawable/new_" />
+                android:background="@drawable/new1"
+                android:onClick="openNote" />
 
         </LinearLayout>
     </LinearLayout>

@@ -11,7 +11,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 	public static final String TABLE_CAT = "cat";
 
 	private static final String DATABASE_NAME = "MaNotes.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 4;
 
 	// Database creation sql statement
 	private static final String DATABASE_CREATE_NOTES = "create table "
@@ -22,6 +22,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 			+ "note TEXT NOT NULL, "
 			+ "color TEXT NOT NULL, "
 			+ "date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+			+ "date_updated DATETIME , "
 			+ " cat INTEGER DEFAULT 1);";
 	private static final String DATABASE_CREATE_CAT = "create table "
 			+ TABLE_CAT

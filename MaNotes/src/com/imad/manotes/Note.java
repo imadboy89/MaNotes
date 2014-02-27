@@ -1,6 +1,9 @@
 package com.imad.manotes;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Hashtable;
 
 import android.R.integer;
@@ -12,6 +15,7 @@ public class Note implements Serializable{
 	private String title;
 	private String note;
 	private String date_added;
+	private String date_updated;
 	private String color;
 	private int id;
 	private int cat;
@@ -22,7 +26,7 @@ public class Note implements Serializable{
 	private Log l;
 	//private MainActivity act;
 	
-	public Note(int id, String title, String note, String date_added, int cat,String color) {
+	public Note(int id, String title, String note, String date_added, String date_updated, int cat,String color) {
 		super();
 		this.title = title;
 		this.note = note;
@@ -30,6 +34,8 @@ public class Note implements Serializable{
 		this.id = id;
 		this.cat = cat;
 		this.color = color;
+		this.date_updated = date_updated;
+
 		
 	}
 	public Note(String title, String note,String color, int cat) {
@@ -45,7 +51,18 @@ public class Note implements Serializable{
 		super();
 		this.id = -1;
 	}
-	
+	public String getFormatedDate(String date_str){
+		Date date = null;
+		try {
+			date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(date_str);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+			return "";
+		}
+		String formattedDate = new SimpleDateFormat("MMMM dd,E ,HH:mm").format(date);
+		return formattedDate;
+	}
 	public String getColor() {
 		return color;
 	}
@@ -82,6 +99,12 @@ public class Note implements Serializable{
 	public void setCat(int cat) {
 		this.cat = cat;
 	}
+	public String getDate_updated() {
+		return date_updated;
+	}
+	public void setDate_updated(String date_updated) {
+		this.date_updated = date_updated;
+	}
 	
 	
 	
@@ -96,15 +119,18 @@ public class Note implements Serializable{
 		infs.put("color", this.getColor()+"");
 		
 		int id = dao.insert(table_name, infs);
+		
+		this.date_added = dao.getValueByid("notes", "date_added", id);
 		l.i("note",this.getTitle());
 		this.setId(id);
 		notes.addNote(this);
 		//i.i("where", n.getTitle());
-		int buttonId = act.addButton( this.getTitle(),this.getColor());
+		int buttonId = act.addButton( this);
 		act.buttons_notes.put(buttonId, this.getId());
 		dao.close();
 		return id;
 	}
+	/*
 	public int insert(Context cntxt, Notes notes) {
 		DAO dao = new DAO(cntxt);
 		dao.open();
@@ -120,7 +146,7 @@ public class Note implements Serializable{
 		//i.i("where", n.getTitle());
 		dao.close();
 		return id;
-	}
+	}*/
 	public int update(Context cntxt) {
 		DAO dao = new DAO(cntxt);
 		dao.open();
@@ -129,9 +155,9 @@ public class Note implements Serializable{
 		infs.put("note", this.getNote());
 		infs.put("cat", this.getCat()+"");
 		infs.put("color", this.getColor()+"");
-		int res = dao.update(table_name, infs,this.getId());
+		 dao.update(table_name, infs,this.getId());
 		dao.close();
-		return res; 
+		return 1; 
 	}
 	public int delete(Context cntxt) {
 		DAO dao = new DAO(cntxt);

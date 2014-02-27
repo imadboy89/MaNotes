@@ -7,6 +7,6 @@
     <dimen name="dem_5dp">5dp</dimen>
     <dimen name="note_btn_w">285dp</dimen>
     <dimen name="note_btn_h">50dp</dimen>
-    <dimen name="delete_btn">25dp</dimen>
+    <dimen name="delete_btn">20dp</dimen>
 
 </resources>

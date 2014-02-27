@@ -1,6 +1,8 @@
 package com.imad.manotes;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -48,7 +50,16 @@ public class DAO {
         */
         return (int) database.insert(table_name, null,values);
     }
-    
+    public String getValueByid(String table_name,String column_name,int id) {
+    	
+        Cursor cursor = database.query(table_name,
+        		new String[]{column_name}, "id = " + id, null,
+                null, null, null);
+        cursor.moveToFirst();
+        String dated_added = cursor.getString(0);
+        cursor.close();
+        return dated_added;
+	}
     public int update(String table_name,Hashtable infs,int id) {
         ContentValues values = new ContentValues();
         Enumeration<String> enumKey = infs.keys();
@@ -57,6 +68,7 @@ public class DAO {
             String val = (String) infs.get(key);
             values.put(key, val);
         }
+        values.put("date_updated", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         String whereClause = "id = "+id;
         return (int) database.update(table_name, values, whereClause, null);
     }
@@ -76,7 +88,12 @@ public class DAO {
         	Hashtable<String,String> result = new Hashtable<String,String>();
         	for(int i=0;i<cols.length;i++){
         		int icol = cursor.getColumnIndex(cols[i]);
-        		result.put(cols[i], cursor.getString(icol));
+        		try {
+        			result.put(cols[i], cursor.getString(icol));
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+        		
         	}
         	results.add(result);
         }
