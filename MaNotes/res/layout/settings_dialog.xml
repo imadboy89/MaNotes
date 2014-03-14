@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#ffffff"
+    android:gravity="center"
+    android:orientation="vertical" >
+        <ScrollView
+            android:id="@+id/scrollView1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.61"
+            android:background="#000000" >
+            
+<LinearLayout 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#ffffff"
+    android:gravity="center"
+    android:orientation="vertical" >  
+            
+    <TextView
+        android:id="@+id/text_tests"
+        android:layout_width="wrap_content"
+        android:layout_height="61dp"
+        android:text="MaNotes text"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#5DBCD2" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.45" >
+
+        <Spinner
+            android:id="@+id/fonts_spinner"
+            android:layout_width="204dp"
+            android:layout_height="wrap_content"
+            android:textColor="#5DBCD2" />
+
+        <ToggleButton
+            android:id="@+id/toggleBtn_bold"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0.41"
+            android:text="Bold"
+            android:textColor="@android:color/black"
+            android:textOff="Bold OFF"
+            android:textOn="Bold ON" />
+
+    </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/seekBar1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.45"
+        android:layout_toLeftOf="@string/min"
+        android:layout_toRightOf="@string/max"
+     />
+
+    <Button
+        android:id="@+id/settings_advanced"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Advanced" />
+
+    <LinearLayout
+        android:id="@+id/settings_advanced_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone" >
+
+        <EditText
+            android:id="@+id/settings_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Username" >
+
+            <requestFocus />
+        </EditText>
+
+        <EditText
+            android:id="@+id/settings_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Password"
+            android:inputType="textPassword" />
+
+        <EditText
+            android:id="@+id/settings_apiurl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="API URL"
+            android:text="@string/MaNotesAPI_URL"
+            android:textSize="12sp"
+            android:visibility="visible" />
+
+    </LinearLayout>
+</LinearLayout>
+ </ScrollView>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="#ffffff"
+        android:orientation="horizontal"
+        android:paddingTop="10dp" >
+
+        <Button
+            android:id="@+id/btn_yes"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:background="#000000"
+            android:clickable="true"
+            android:text="OK"
+            android:textColor="#5DBCD2"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn_no"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="5dp"
+            android:background="#000000"
+            android:clickable="true"
+            android:text="Cancel"
+            android:textColor="#5DBCD2"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</LinearLayout>

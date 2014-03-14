@@ -1,5 +1,7 @@
 package com.imad.manotes;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,8 +11,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -57,6 +61,12 @@ public class NoteActivity extends Activity {
 		note_et = (EditText) findViewById(R.id.note_editor);
 		title_et = (EditText) findViewById(R.id.note_title);
 		color_changer = (Button) findViewById(R.id.color_changer);
+		
+		title_et.setTypeface(MainActivity.font,(MainActivity.font_isBold)?Typeface.BOLD:Typeface.NORMAL);
+		note_et.setTypeface(MainActivity.font,(MainActivity.font_isBold)?Typeface.BOLD:Typeface.NORMAL);
+		title_et.setTextSize(TypedValue.COMPLEX_UNIT_SP,MainActivity.font_size);
+		note_et.setTextSize(TypedValue.COMPLEX_UNIT_SP,MainActivity.font_size);
+		
 		Intent intent = getIntent();
 		
 		if(intent.hasExtra("note")){
@@ -152,6 +162,7 @@ public class NoteActivity extends Activity {
 		//setResult(10);
 		String title_new = title_et.getText().toString();
 		String note_new = note_et.getText().toString();
+		
 		boolean cond = (note_et.getText().toString().equals("") || title_et.getText().toString().equals(""));
 		if(cond){
 			toast("please fill all title and note fields .");
@@ -160,7 +171,7 @@ public class NoteActivity extends Activity {
 		
 		note.setNote(note_new);
 		note.setTitle(title_new);
-		
+		note.setDate_updated(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 		Intent intent = new Intent();
 		int requestCode;
 		int res = 0;

@@ -31,6 +31,7 @@ public class DAO {
     }
 
     public int insert(String table_name,Hashtable infs) {
+    	this.open();
         ContentValues values = new ContentValues();
         Enumeration<String> enumKey = infs.keys();
         while(enumKey.hasMoreElements()) {
@@ -38,29 +39,23 @@ public class DAO {
             String val = (String) infs.get(key);
             values.put(key, val);
         }
-        //values.put(MySQLiteHelper.COLUMN_COMMENT, comment);
-        /*
-        Cursor cursor = database.query(table_name,
-                allColumns, MySQLiteHelper.COLUMN_ID + " = " + insertId, null,
-                null, null, null);
-        cursor.moveToFirst();
-        Comment newComment = cursorToComment(cursor);
-        cursor.close();
-        return newComment;
-        */
-        return (int) database.insert(table_name, null,values);
+        int res = (int)database.insert(table_name, null,values);
+        this.close();
+        return res ;
     }
     public String getValueByid(String table_name,String column_name,int id) {
-    	
+    	this.open();
         Cursor cursor = database.query(table_name,
         		new String[]{column_name}, "id = " + id, null,
                 null, null, null);
         cursor.moveToFirst();
         String dated_added = cursor.getString(0);
         cursor.close();
+        this.close();
         return dated_added;
 	}
     public int update(String table_name,Hashtable infs,int id) {
+    	this.open();
         ContentValues values = new ContentValues();
         Enumeration<String> enumKey = infs.keys();
         while(enumKey.hasMoreElements()) {
@@ -68,19 +63,25 @@ public class DAO {
             String val = (String) infs.get(key);
             values.put(key, val);
         }
-        values.put("date_updated", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        if(values.get("date_updated")==null) values.put("date_updated", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         String whereClause = "id = "+id;
-        return (int) database.update(table_name, values, whereClause, null);
+        int res = database.update(table_name, values, whereClause, null);
+        this.close();
+        return res ;
     }
     
     public int delete(String table_name, String whereClause) {
         //System.out.println("Comment deleted with id: " + id);column_name + " = " + id
-        return database.delete(table_name, whereClause, null);
+    	this.open();
+    	int res = database.delete(table_name, whereClause, null);
+    	this.close();
+        return res;
     }
     
     
     public List<Hashtable> getAll(String table_name,String[] cols) {
        // List<Comment> comments = new ArrayList<Comment>();
+    	this.open();
     	List<Hashtable> results = new ArrayList<Hashtable>();
         Cursor cursor = database.query(table_name,cols, null, null, null, null, null);
         
@@ -99,7 +100,39 @@ public class DAO {
         }
         // make sure to close the cursor
         cursor.close();
+        this.close();
         return results;
     }
+    public List<Hashtable> getByCond(String table_name,String[] cols,String WHERE) {
+    	this.open();
+        // List<Comment> comments = new ArrayList<Comment>();
+     	List<Hashtable> results = new ArrayList<Hashtable>();
+         Cursor cursor = database.query(table_name,cols, WHERE, null, null, null, null);
+         
+         for (cursor.moveToFirst();!cursor.isAfterLast();cursor.moveToNext()) {
+         	Hashtable<String,String> result = new Hashtable<String,String>();
+         	for(int i=0;i<cols.length;i++){
+         		int icol = cursor.getColumnIndex(cols[i]);
+         		try {
+         			result.put(cols[i], cursor.getString(icol));
+ 				} catch (Exception e) {
+ 					// TODO: handle exception
+ 				}
+         		
+         	}
+         	results.add(result);
+         }
+         // make sure to close the cursor
+         cursor.close();
+         this.close();
+         return results;
+     }
 
+	public int emptyTrash() {
+    	this.open();
+    	int res = database.delete("notes_trash",null,null);
+    	this.close();
+        return res;
+		
+	}
 }
