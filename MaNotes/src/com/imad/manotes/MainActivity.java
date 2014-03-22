@@ -1,66 +1,45 @@
 package com.imad.manotes;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import android.R.color;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.sax.TextElementListener;
 import android.support.v4.widget.DrawerLayout.LayoutParams;
-import android.text.Layout;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.ContextThemeWrapper;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.ViewManager;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.webkit.WebView.FindListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -94,7 +73,10 @@ public class MainActivity extends Activity {
 	public Map<String, Integer> BUTTON_BG = new HashMap<String, Integer>();
 	public static Typeface font;
 	private String PREFS_NAME = "MaNotes";
+	 DisplayMetrics metrics = new DisplayMetrics();
 
+	 
+	 int buttonHeight; 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -107,24 +89,22 @@ public class MainActivity extends Activity {
 		fonts.put("DEFAULT1", Typeface.DEFAULT);
 		fonts.put("DEFAULT2", Typeface.SANS_SERIF);
 		fonts.put("DEFAULT3", Typeface.SERIF);
-		fonts.put("font1",
-				Typeface.createFromAsset(getAssets(), "fonts/font1.ttf"));
-		fonts.put("font2",
-				Typeface.createFromAsset(getAssets(), "fonts/font2.ttf"));
-		fonts.put("font3",
-				Typeface.createFromAsset(getAssets(), "fonts/font3.ttf"));
-		fonts.put("font4",
-				Typeface.createFromAsset(getAssets(), "fonts/font4.ttf"));
-		fonts.put("font5",
-				Typeface.createFromAsset(getAssets(), "fonts/font5.ttf"));
-		fonts.put("font6",
-				Typeface.createFromAsset(getAssets(), "fonts/font6.ttf"));
-		fonts.put("font7",
-				Typeface.createFromAsset(getAssets(), "fonts/font7.ttf"));
-
+		fonts.put("font1", Typeface.createFromAsset(getAssets(), "fonts/font1.ttf"));
+		fonts.put("font2", Typeface.createFromAsset(getAssets(), "fonts/font2.ttf"));
+		fonts.put("font3", Typeface.createFromAsset(getAssets(), "fonts/font3.ttf"));
+		fonts.put("font4", Typeface.createFromAsset(getAssets(), "fonts/font4.ttf"));
+		fonts.put("font5", Typeface.createFromAsset(getAssets(), "fonts/font5.ttf"));
+		fonts.put("font6", Typeface.createFromAsset(getAssets(), "fonts/font6.ttf"));
+		fonts.put("font7",Typeface.createFromAsset(getAssets(), "fonts/font7.ttf"));
+		
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		buttonHeight = metrics.heightPixels/4;
+		
 		loadSettings();
 		nts.fillNotes();
 		titleBar();
+		buttonEffect(findViewById(R.id.Add_new_Btn));
+		/*
 		findViewById(R.id.Add_new_Btn).setOnTouchListener(
 				new View.OnTouchListener() {
 
@@ -133,7 +113,17 @@ public class MainActivity extends Activity {
 						scale(v);
 						return false;
 					}
-				});
+				});*/
+		
+		
+		Intent intent = getIntent();
+		if(!intent.getAction().equals(Intent.ACTION_MAIN)){
+			Bundle extras = this.getIntent().getExtras();
+			//String[] recipients = (String[]) extras.get(intent.EXTRA_SUBJECT);
+			ShareCrtl sc = new ShareCrtl(intent,this);
+			openNote(sc);
+		}
+
 
 	}
 	public MenuItem synchItem;
@@ -169,7 +159,7 @@ public class MainActivity extends Activity {
 	private void About() {
 		dialog = new Dialog(this);
 		dialog.setContentView(R.layout.about_dialog);
-		dialog.setTitle("About MaNotes");
+		dialog.setTitle("About MaNotes V"+getString(R.string.app_version));
 
 		Button dialogButton_ok = (Button) dialog.findViewById(R.id.about_yes);
 		dialogButton_ok.setOnClickListener(dlgH);
@@ -186,9 +176,8 @@ public class MainActivity extends Activity {
 		// LayoutInflater inflater = (LayoutInflater)
 		// getApplicationContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		LayoutInflater inflater = getLayoutInflater();
-		layout = inflater.inflate(R.layout.settings_dialog,
-				(ViewGroup) findViewById(R.id.fonts_spinner));
-
+		layout = inflater.inflate(R.layout.settings_dialog,(ViewGroup) findViewById(R.id.fonts_spinner));
+		
 		String[] list2 = new String[this.fonts.size()];
 
 		int i = 0;
@@ -197,15 +186,21 @@ public class MainActivity extends Activity {
 			i++;
 		}
 		Arrays.sort(list2);
-		final ToggleButton tbold = (ToggleButton) layout
-				.findViewById(R.id.toggleBtn_bold);
+		final ToggleButton tbold = (ToggleButton) layout.findViewById(R.id.toggleBtn_bold);
 		Button btn_yes = (Button) layout.findViewById(R.id.btn_yes);
 		Button btn_no = (Button) layout.findViewById(R.id.btn_no);
 		Button adv = (Button) layout.findViewById(R.id.settings_advanced);
+		Button signUp = (Button) layout.findViewById(R.id.settings_signup_btn);
+		Button update = (Button) layout.findViewById(R.id.settings_update);
+		
+		buttonEffect(btn_yes);
+		buttonEffect(btn_no);
 		
 		adv.setOnClickListener(dlgH);
 		btn_yes.setOnClickListener(dlgH);
 		btn_no.setOnClickListener(dlgH);
+		signUp.setOnClickListener(dlgH);
+		update.setOnClickListener(dlgH);
 		
 		EditText un = (EditText) layout.findViewById(R.id.settings_username);
 		EditText ps = (EditText) layout.findViewById(R.id.settings_password);
@@ -215,6 +210,8 @@ public class MainActivity extends Activity {
 		ps.setText(this.password);
 		api.setText(this.API_URL);
 		
+
+	    
 		final Spinner fonts = (Spinner) layout.findViewById(R.id.fonts_spinner);
 
 		ArrayAdapter<CharSequence> adapter2 = new CustomArrayAdapter<CharSequence>(
@@ -298,7 +295,9 @@ public class MainActivity extends Activity {
 		Settings_dlg.show();
 
 	}
-
+	private static final String EMAIL_PATTERN = 
+			"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 	View.OnClickListener dlgH = new View.OnClickListener() {
 
 		@Override
@@ -330,41 +329,118 @@ public class MainActivity extends Activity {
 				LinearLayout advancedL = (LinearLayout) layout.findViewById(R.id.settings_advanced_layout);;
 				advancedL.setVisibility((advancedL.getVisibility()==View.VISIBLE)?View.GONE:View.VISIBLE);
 				return ;
+			}else if(v.getId() == R.id.settings_update){
+				
+				update();
 			}else if(v.getId() == R.id.about_yes){
 				dialog.dismiss();
+				return;
+			}else if(v.getId() == R.id.settings_signup_btn){
+				EditText un = (EditText) layout.findViewById(R.id.settings_username);
+				EditText ps = (EditText) layout.findViewById(R.id.settings_password);
+				EditText api = (EditText) layout.findViewById(R.id.settings_apiurl);
+				
+				//EmailValidator.getInstance().isValid(emailAddressString);
+				Pattern r = Pattern.compile(EMAIL_PATTERN);
+				Matcher m = r.matcher(un.getText().toString());
+				//toast(m.group(0));
+				//return;
+				i.i("eml",un.getText().toString());
+				if(m.matches()){
+					i.i("eml",m.group(0));
+					//return;
+					singUp(un.getText().toString(),ps.getText().toString(),api.getText().toString());
+				}else{
+					toast("Please enter a valide email !");
+				}
+				
 				return;
 			}
 			Settings_dlg.dismiss();
 		}
+
+
 	};
+
+	public void getEmail(){
+	    final EditText input = new EditText(this);
+	    boolean res = false;
+		new AlertDialog.Builder(this)
+		.setIcon(android.R.drawable.ic_dialog_alert)
+		.setTitle("Duplecate note .")
+		.setMessage("This note already exists !!")
+		.setView(input)
+		.setPositiveButton("ok",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog,int which) {
+						EditText un = (EditText) layout.findViewById(R.id.settings_username);
+						EditText ps = (EditText) layout.findViewById(R.id.settings_password);
+						EditText api = (EditText) layout.findViewById(R.id.settings_apiurl);
+						//String email = input.getText().toString();
+						Pattern r = Pattern.compile(EMAIL_PATTERN);
+						Matcher m = r.matcher(un.toString());
+						//toast(m.group(0));
+						//return;
+						if(m.matches()){
+							//return;
+							singUp(un.getText().toString(),ps.getText().toString(),api.getText().toString());
+						}else{
+							toast("Please enter a valide email !");
+						}
+						
+						return;
+					}
+
+				})
+				.show();
+		
+	}
+	private void singUp(String un, String ps, String api) {
+		NetworkOperation ntw = new NetworkOperation();
+		ntw.setAct(this);
+		ntw.task =3 ;
+		ntw.api = api;
+		ntw.un = un;
+		ntw.ps = ps;
+		ntw.execute();
+		
+	}
 	String API_URL;
 	String username;
 	String password;
 
 	private void loadSettings() {
-		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-		font_name = settings.getString("font", "font1");
-		font_size = Float.parseFloat(settings.getString("size", "18"));
-		font_isBold = Boolean.parseBoolean(settings.getString("isBold", "False"));
-		API_URL = settings.getString("API_URL", getString(R.string.MaNotesAPI_URL));
-		username = settings.getString("username", "");
-		password = settings.getString("password", "");
-		
-		font = fonts.get(font_name);
-		i.i("toch", "size = " + font_size);
-		for (int key : buttons_notes.keySet()) {
-			i.i("toch", "id = " + key);
-			Button btn = (Button) findViewById(key);
-			btn.setTypeface(font, (font_isBold) ? Typeface.BOLD : Typeface.NORMAL);
-			btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, font_size);
-			
+		try {
+			SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+			font_name = settings.getString("font", "font1");
+			font_size = Float.parseFloat(settings.getString("size", "18"));
+			font_isBold = Boolean.parseBoolean(settings.getString("isBold", "false"));
+			API_URL = settings.getString("API_URL", getString(R.string.MaNotesAPI_URL));
+			username = settings.getString("username", "");
+			password = settings.getString("password", "");
+			font = fonts.get(font_name);
+			for (int key : buttons_notes.keySet()) {
+				Button btn = (Button) findViewById(key);
+				btn.setTypeface(font, (font_isBold) ? Typeface.BOLD : Typeface.NORMAL);
+				btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, font_size);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
 	}
 
 	public void openNote(View v) {
 		openNote(v, "new");
 	}
-
+	public void openNote(ShareCrtl sc){
+		Intent intent = new Intent(this, NoteActivity.class);
+		int request = NEW_NOTE;
+		Note n = new Note(sc.title, sc.note, "blue", 0);
+		intent.putExtra("note", n);
+		intent.putExtra("action", "newFromShareWith");
+		startActivityForResult(intent, request);
+	}
 	public void openNote(View v, String action) {
 		Intent intent = new Intent(this, NoteActivity.class);
 		int request = NEW_NOTE;
@@ -411,7 +487,8 @@ public class MainActivity extends Activity {
 		// i.i("deleted", "id = "+id);
 	}
 
-	@SuppressWarnings("deprecation")
+
+	 
 	public int addButton(Note note) {
 		buttons_id++;// getLayoutInflater().inflate(R.layout.template_button,
 						// null);
@@ -433,12 +510,13 @@ public class MainActivity extends Activity {
 		layout_note.setOrientation(LinearLayout.HORIZONTAL);
 		LinearLayout layout_up = new LinearLayout(this);
 		layout_up.setOrientation(LinearLayout.HORIZONTAL);
-
+		
 		LinearLayout layout_all = new LinearLayout(this);
 		layout_all.setOrientation(LinearLayout.VERTICAL);
 		// int w = this.getWindowManager().getDefaultDisplay().getWidth();
 		layout_up.setWeightSum(1f);
-
+		
+		note_buttton.setMaxHeight(buttonHeight);
 		TextView date_str = new TextView(this);
 		date_str.setText(note.getFormatedDate(note.getDate_added()));
 		date_str.setTextSize(12);
@@ -545,13 +623,17 @@ public class MainActivity extends Activity {
 		v.startAnimation(animRotate);
 	}
 	public void rotate(MenuItem v) {
-		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		ImageView iv = (ImageView) inflater.inflate(R.layout.synch_layout, null);
-		final Animation animRotate = AnimationUtils.loadAnimation(this,R.anim.rotat);
-		animRotate.setRepeatCount(Animation.INFINITE);
-		//v.startAnimation(animRotate);
-		iv.startAnimation(animRotate);
-		v.setActionView(iv);
+		int sdk = android.os.Build.VERSION.SDK_INT;
+		if (sdk > android.os.Build.VERSION_CODES.GINGERBREAD_MR1) {
+			LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			ImageView iv = (ImageView) inflater.inflate(R.layout.synch_layout, null);
+			iv.setBackgroundDrawable(getResources().getDrawable(R.drawable.synch_icon));
+			final Animation animRotate = AnimationUtils.loadAnimation(this,R.anim.rotat);
+			animRotate.setRepeatCount(Animation.INFINITE);
+			//v.startAnimation(animRotate);
+			iv.startAnimation(animRotate);
+			v.setActionView(iv);
+		}
 	}
 	public void scale(View v) {
 		final Animation animScale = AnimationUtils.loadAnimation(this,R.anim.scale);
@@ -637,22 +719,26 @@ public class MainActivity extends Activity {
 		if (isNetworkAvailable()) {
 			rotate(synchItem);
 			NetworkOperation ntw = new NetworkOperation();
-			//ntw.setnt(nts.toJSON());
 			ntw.setAct(this);
 			ntw.execute();
-			//et.setText(ntw.getOutPut());
 			return;
 		} else {
 			toast("there is no connection available !!!");
 		}
 		
 	}
+	private void update(){
 
-	public void onClickanimation(View v) {
-		Button btn = (Button) findViewById(v.getId());
-		Drawable bg = btn.getBackground();
-		bg.setAlpha(10);
-		btn.setBackground(bg);
+		if (isNetworkAvailable()) {
+			NetworkOperation ntw = new NetworkOperation();
+			ntw.task=2;
+			ntw.setAct(this);
+			ntw.execute();
+			return;
+		} else {
+			toast("there is no connection available !!!");
+		}
+		
 	}
 
 	@Override
@@ -668,102 +754,24 @@ public class MainActivity extends Activity {
 				.getActiveNetworkInfo();
 		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 	}
+	public static void buttonEffect(View button){
+	    button.setOnTouchListener(new OnTouchListener() {
 
-}
-
-class NetworkOperation extends AsyncTask<Void, Void, String> {
-
-	private String output;
-	private MainActivity mact;
-	private String params;
-	
-	public void onPreExecute() {
-		// do something
+	        public boolean onTouch(View v, MotionEvent event) {
+	            switch (event.getAction()) {
+	                case MotionEvent.ACTION_DOWN: {
+	                    v.getBackground().setColorFilter(Color.BLACK,PorterDuff.Mode.SRC_ATOP);
+	                    v.invalidate();
+	                    break;
+	                }
+	                case MotionEvent.ACTION_UP: {
+	                    v.getBackground().clearColorFilter();
+	                    v.invalidate();
+	                    break;
+	                }
+	            }
+	            return false;
+	        }
+	    });
 	}
-	private String getFullUrl(){
-		String params=mact.nts.getParams();
-		String api_url = mact.API_URL;
-
-		String URL = mact.API_URL+params+"&username="+mact.username+"&password="+mact.password;
-		return URL;
-	}
-	@Override
-	protected String doInBackground(Void... params) {
-
-		output = "";
-		URL url = null;
-		try {
-			url = new URL(this.getFullUrl());
-			//mact.et.setText(url.toString());
-			mact.i.i("NetworkOperation",url.toString());
-			BufferedReader in = null;
-			in = new BufferedReader(new InputStreamReader(url.openStream()));
-			String inputLine;
-			//mact.toast(url.toString());
-			while ((inputLine = in.readLine()) != null)
-				// System.out.println(inputLine);
-				output += inputLine;
-			in.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return "";
-	}
-
-	public void setAct(MainActivity mact) {
-		this.mact = mact;
-	}
-
-	public String getOutPut() {
-		return output;
-	}
-
-	public void onPostExecute(String msg) {
-		// do something
-		mact.synchItem.getActionView().clearAnimation();
-		mact.synchItem.setActionView(null);
-		if(mact.nts.Synch(output)){
-			//MenuItem mi = (MenuItem) mact.View.findViewById(R.id.menu_sync);
-			
-			mact.synchItem.setIcon(android.R.drawable.checkbox_on_background);
-			
-			mact.toast("Synchronazed successfuly :)");
-			//Button syn = (Button) mact.layout.findViewById(R.id.menu_sync);
-			//syn.setBackgroundColor(android.R.drawable.checkbox_on_background);
-		}else{
-			//mact.toast("Didn't synchronazed properly :(");
-		}
-		//mact.toast(output);
-
-	}
-
-}
-
-class CustomArrayAdapter<T> extends ArrayAdapter<T> {
-	public CustomArrayAdapter(Context ctx, T[] objects) {
-		super(ctx, android.R.layout.simple_spinner_item, objects);
-	}
-
-	// other constructors
-
-	@Override
-	public View getDropDownView(int position, View convertView, ViewGroup parent) {
-		View view = super.getView(position, convertView, parent);
-
-		// we know that simple_spinner_item has android.R.id.text1 TextView:
-
-		/* if(isDroidX) { */
-		// LayoutParams params = new
-		// LayoutParams(LayoutParams.MATCH_PARENT,100);
-
-		TextView text = (TextView) view.findViewById(android.R.id.text1);
-		text.setTextColor(Color.LTGRAY);
-		text.setBackgroundColor(Color.BLACK);
-		text.setHeight(85);
-		/* } */
-
-		return view;
-
-	}
-
 }

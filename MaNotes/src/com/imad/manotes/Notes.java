@@ -179,6 +179,20 @@ public class Notes {
     public void addNote(JSONObject nto){
     	
 		Note n = new Note(nto);
+		for (int k = 0; k < this.notes.size(); k++) {
+			if(n.getId_online()==this.notes.get(k).getId_online())
+				return;
+			if(n.getTitle().equals(this.notes.get(k).getTitle()) && n.getNote().equals(this.notes.get(k).getNote())){
+				act.i.i("deplicae",n.getId()+"");
+				this.notes.get(k).setColor(n.getColor());
+				int id_on = this.notes.get(k).getId_online();
+				this.notes.get(k).setId_online(n.getId_online());
+				this.replace(this.notes.get(k));
+				n.setId_online(id_on);
+				n.delete(act);
+				return;
+			}
+		}
 		n.insert(this.act, this);
     }
     public String toJSON(){
@@ -241,7 +255,6 @@ public class Notes {
 			{
 			   JSONObject object = notesObject.getJSONObject(i);
 				Iterator<?> keys = object.keys();
-				this.i.i("synch","befor while"+object.get("id_online"));
 				//Note note = (Note)object.;
 				int id =0;
 				try{
@@ -252,19 +265,14 @@ public class Notes {
 				}
 				boolean isExcest = false;
 				for (int k = 0; k < this.notes.size(); k++) {
-					if (this.notes.get(k).getId() == id){
+					if ((this.notes.get(k).getId() == id)){
 						isExcest = true;
-						this.i.i("replace",""+this.notes.get(k).getId());
-						
-						this.i.i("old title",this.notes.get(k).getTitle());
 						this.notes.get(k).Synch(object, this.act);
 						//this.notes.get(k).update(this.act);
-						this.i.i("new title",this.notes.get(k).getTitle());
-						this.i.i("id_online",this.notes.get(k).getId_online()+"");
 						if(this.notes.get(k).getDate_added().equals("0000-00-00 00:00:00")){
 							//this.notes.get(k).delete(this.act);
 							this.deleteNote(this.notes.get(k).getId());
-							return true;
+							break;
 						}
 						
 						DAO dao = new DAO(this.act);
@@ -280,6 +288,7 @@ public class Notes {
 						
 						
 						this.replace(this.notes.get(k));
+						break;
 					}
 				}
 				if(!isExcest){

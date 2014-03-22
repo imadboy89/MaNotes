@@ -4,5 +4,4 @@
     android:layout_height="wrap_content"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
-    android:src="@android:drawable/ic_popup_sync"
 />

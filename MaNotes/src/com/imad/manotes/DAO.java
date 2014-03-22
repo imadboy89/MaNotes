@@ -17,7 +17,7 @@ public class DAO {
 
     private SQLiteDatabase database;
     private MySQLiteHelper dbHelper;
-
+    private String[] cols=new String[]{"id","title","note","cat","date_added","date_updated","color","id_online","isSynch"};
     public DAO(Context context) {
         dbHelper = new MySQLiteHelper(context);
     }
@@ -127,7 +127,18 @@ public class DAO {
          this.close();
          return results;
      }
-
+    public boolean isDuplecate(String table_name,String WHERE){
+    	this.open();
+    	Cursor cursor = database.query(table_name,cols, WHERE, null, null, null, null);
+    	boolean result;
+    	if(cursor.getCount()>0)
+    		result = true;
+    	else
+    		result = false;
+        cursor.close();
+        this.close();
+        return result;
+    }
 	public int emptyTrash() {
     	this.open();
     	int res = database.delete("notes_trash",null,null);

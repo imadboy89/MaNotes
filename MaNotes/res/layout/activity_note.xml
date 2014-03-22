@@ -1,7 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:background="#000000"
     android:padding="0dp"
     tools:context=".NoteActivity" >
@@ -23,7 +23,7 @@
             android:fillViewport="true"
             android:layout_weight="0.99" >
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.01"
                 android:background="#000000"
@@ -31,30 +31,33 @@
 
                 <EditText
                     android:id="@+id/note_title"
-                    android:layout_width="match_parent"
+                    android:layout_width="fill_parent"
                     android:layout_height="0dip"
                     android:layout_weight=".1"
                     android:background="#ffffff"
                     android:ems="10"
-                    android:hint="The title" >
+                    android:hint="The title"
+                    android:singleLine="true">
 
                 <requestFocus />
                 </EditText>
 
                 <EditText
                     android:id="@+id/note_editor"
-                    android:layout_width="match_parent"
+                    android:layout_width="fill_parent"
                     android:layout_height="010dip"
                     android:layout_weight="0.56"
                     android:background="@drawable/note_editor_bg_blue"
                     android:gravity="left|top"
-                    android:inputType="textMultiLine" />
+                    android:inputType="textMultiLine"
+                    android:linksClickable="true"
+                    android:autoLink="web|email" />
 
             </LinearLayout>
         
         </ScrollView>
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:padding="3dp" >
@@ -62,7 +65,7 @@
             <Button
                 android:id="@+id/back"
                 android:layout_width="50dp"
-                android:layout_height="match_parent"
+                android:layout_height="fill_parent"
                 android:background="@drawable/back"
                 android:onClick="back"
                 android:layout_marginLeft="5dp"
@@ -71,7 +74,7 @@
             <Button
                 android:id="@+id/save_btn"
                 android:layout_width="50dp"
-                android:layout_height="match_parent"
+                android:layout_height="fill_parent"
                 android:background="@drawable/save_img"
                 android:onClick="update_delete_Note"
                 android:layout_marginLeft="5dp"
@@ -80,7 +83,7 @@
             <Button
                 android:id="@+id/color_changer"
                 android:layout_width="50dp"
-                android:layout_height="match_parent"
+                android:layout_height="fill_parent"
 
                 android:background = "@drawable/color_changer_blue"
                 android:onClick="change_color"
@@ -92,7 +95,7 @@
             <Button
                 android:id="@+id/delete_btn"
                 android:layout_width="50dp"
-                android:layout_height="match_parent"
+                android:layout_height="fill_parent"
                 android:background="@drawable/delete"
                 android:onClick="delete"
                 android:layout_marginLeft="5dp"
@@ -102,7 +105,7 @@
             <Button
                 android:id="@+id/edit"
                 android:layout_width="50dp"
-                android:layout_height="match_parent"
+                android:layout_height="fill_parent"
                 android:background="@drawable/edit_"
                 android:onClick="edit"
                 android:layout_marginLeft="5dp"

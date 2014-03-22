@@ -12,7 +12,7 @@
         android:enabled="true" 
         android:visible="true" 
         android:showAsAction="always"
-        android:icon="@android:drawable/ic_popup_sync"
+        android:icon="@drawable/synch_icon"
         
         />
     <item android:id="@+id/menu_about" 

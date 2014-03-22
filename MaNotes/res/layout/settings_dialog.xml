@@ -12,12 +12,12 @@
             android:layout_weight="0.61"
             android:background="#000000" >
             
-<LinearLayout 
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#ffffff"
+    android:background="#EFEFFB"
     android:gravity="center"
-    android:orientation="vertical" >  
+    android:orientation="vertical" >
             
     <TextView
         android:id="@+id/text_tests"
@@ -69,6 +69,7 @@
         android:id="@+id/settings_advanced_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#EFFBFB"
         android:orientation="vertical"
         android:visibility="gone" >
 
@@ -77,7 +78,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Username" >
+            android:hint="Username"
+            android:singleLine="true" 
+            android:nextFocusDown="@+id/settings_password"
+            android:inputType="textEmailAddress"
+             >
 
             <requestFocus />
         </EditText>
@@ -88,7 +93,9 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Password"
-            android:inputType="textPassword" />
+            android:inputType="textPassword" 
+            android:imeOptions="actionDone"
+            />
 
         <EditText
             android:id="@+id/settings_apiurl"
@@ -98,11 +105,27 @@
             android:hint="API URL"
             android:text="@string/MaNotesAPI_URL"
             android:textSize="12sp"
-            android:visibility="visible" />
+            android:visibility="visible" 
+            android:imeOptions="actionDone"/>
+
+        <Button
+            android:id="@+id/settings_signup_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SignUp for free" />
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/settings_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.61"
+        android:text="Update" />
+
 </LinearLayout>
  </ScrollView>
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

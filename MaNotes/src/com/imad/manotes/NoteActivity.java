@@ -1,6 +1,7 @@
 package com.imad.manotes;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,22 +11,35 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.ShareCompat;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.ShareActionProvider;
+import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 public class NoteActivity extends Activity {
 
+	private ShareActionProvider mShareActionProvider;
 	private Log l = null;
 	private Notes nts;
 	private Note note;
@@ -85,58 +99,25 @@ public class NoteActivity extends Activity {
 			}
 			//color_changer.setBackground(colors_bg.get(note.getColor()));
 			if (intent.getStringExtra("action").equals("show")){
-				//note_et.setEnabled(false);
-				//title_et.setEnabled(false);
 				title_et.setFocusable(false);
 				note_et.setFocusable(false);
+				note_et.setMovementMethod(LinkMovementMethod.getInstance());
+			}else{
+				isNewNote=2;
 			}
 		}else{
 			note = new Note();
 		}
-		//affectAnim();
+		affectAnim();
 		//l.i("new activity", "d"+note.getId());
 	}
 	private void affectAnim(){
-		findViewById(R.id.color_changer).setOnTouchListener(new View.OnTouchListener() {
-			
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				rotate(v);
-				return false;
-			}
-		});
-		findViewById(R.id.back).setOnTouchListener(new View.OnTouchListener() {
-			
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				rotate(v);
-				return false;
-			}
-		});
-		findViewById(R.id.delete_btn).setOnTouchListener(new View.OnTouchListener() {
-			
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				rotate(v);
-				return false;
-			}
-		});
-		findViewById(R.id.save_btn).setOnTouchListener(new View.OnTouchListener() {
-			
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				rotate(v);
-				return false;
-			}
-		});
-		findViewById(R.id.edit).setOnTouchListener(new View.OnTouchListener() {
-			
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				rotate(v);
-				return false;
-			}
-		});
+		buttonEffect(findViewById(R.id.color_changer));
+		buttonEffect(findViewById(R.id.back));
+		buttonEffect(findViewById(R.id.delete_btn));
+		buttonEffect(findViewById(R.id.delete_btn));
+		buttonEffect(findViewById(R.id.save_btn));
+		buttonEffect(findViewById(R.id.edit));
 	}
 	public void back(View v){
 		onBackPressed();
@@ -172,6 +153,22 @@ public class NoteActivity extends Activity {
 		note.setNote(note_new);
 		note.setTitle(title_new);
 		note.setDate_updated(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+		if (note.isDuplecate(this) && note.getId()==-1) {
+			new AlertDialog.Builder(this)
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setTitle("Duplecate note .")
+					.setMessage("This note already exists !!")
+					.setPositiveButton("ok",
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+								}
+
+							})
+							.show();
+			return;
+		}
 		Intent intent = new Intent();
 		int requestCode;
 		int res = 0;
@@ -189,11 +186,11 @@ public class NoteActivity extends Activity {
 		}
 		//////////////////////////////////////
 		if (res>0 && note.getId()==-1)
-			toast("inserted succefuly");
+			toast("Added succefuly");
 		else if(res==0 && note.getId()==-1)
-			toast("note inserted succefuly");
+			toast("didn't Added succefuly");
 		else if (res==0 && note.getId()!=-1)
-			toast("not updated succefuly");
+			toast("didn't updated succefuly");
 		else if (res>0 && note.getId()!=-1)
 			toast("updated succefuly");
 		//////////////////////////////////////
@@ -205,11 +202,7 @@ public class NoteActivity extends Activity {
 	
 	public void change_color(View v){
 		if(color_i==-1){
-			for (int i =0;i<colors.length;i++) {
-				if (colors[i].equals(note.getColor())){
-					color_i=(i<colors.length-1)?i:0;
-				}
-			}
+			color_i = (note.getId()!=-1) ?Arrays.asList(colors).indexOf(note.getColor()) : 0;
 		}
 		color_i=(color_i<colors.length-1)?color_i+1:0;
 		
@@ -239,8 +232,40 @@ public class NoteActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.note, menu);
+		MenuItem item = menu.findItem(R.id.menu_item_share);
+		item.setOnMenuItemClickListener(shareH);
+		if(android.os.Build.VERSION.SDK_INT < 14)
+			return true;
+	    // Locate MenuItem with ShareActionProvider
+	    
+	    // Fetch and store ShareActionProvider
+	    mShareActionProvider = (ShareActionProvider) item.getActionProvider();
+	    //String yourShareText = note_et.getText().toString();
+        //Intent shareIntent = ShareCompat.IntentBuilder.from(this).setType("text/plain").setText(yourShareText).getIntent();
+        //mShareActionProvider.setShareIntent(shareIntent);
+	    setShareIntent();
+        
+        
 		return true;
 	}
+	private void setShareIntent(){
+		Intent shareIntent = new Intent(Intent.ACTION_SEND);
+		shareIntent.setType("text/plain");
+	    shareIntent.putExtra(Intent.EXTRA_SUBJECT,title_et.getText().toString());
+	    shareIntent.putExtra(Intent.EXTRA_TEXT,note_et.getText().toString());
+	    mShareActionProvider.setShareIntent(shareIntent);
+	}
+	OnMenuItemClickListener shareH = new MenuItem.OnMenuItemClickListener() {
+		
+		@Override
+		public boolean onMenuItemClick(MenuItem item) {
+	        //String yourShareText = note_et.getText().toString();
+	        //Intent shareIntent = ShareCompat.IntentBuilder.from(NoteActivity.this).setType("text/plain").setText(yourShareText).getIntent();
+	        //mShareActionProvider.setShareIntent(shareIntent);
+	        setShareIntent();
+			return false;
+		}
+	};
 	public void rotate(View v){
 		final Animation animRotate = AnimationUtils.loadAnimation(this, R.anim.rotat);
 		v.startAnimation(animRotate);
@@ -256,12 +281,31 @@ public class NoteActivity extends Activity {
 	
 	@Override
 	public void onBackPressed() {
-		if((note_et.getText().toString().equals("") || title_et.getText().toString().equals("")) && isNewNote == 0){
-			toast("please fill all title and note fields .");
-			return ;
-		}else if(((note_et.getText().toString().equals("") && title_et.getText().toString().equals("")) && isNewNote == 1)
-				|| ( title_et.getText().toString().equals(note.getTitle()) && note_et.getText().toString().equals(note.getNote())) ){
+		if(((note_et.getText().toString().equals("") && title_et.getText().toString().equals("")) && isNewNote == 1)
+				|| ( title_et.getText().toString().equals(note.getTitle()) && note_et.getText().toString().equals(note.getNote()) && isNewNote!=2) ){
 			finish();
+		}else if((note_et.getText().toString().equals("") || title_et.getText().toString().equals(""))){
+		    new AlertDialog.Builder(this)
+	        .setIcon(android.R.drawable.ic_dialog_alert)
+	        .setTitle("Back to the main .")
+	        .setMessage("Please fill title and note fields .")
+	        .setPositiveButton("Cancel any way", new DialogInterface.OnClickListener()
+	    {
+	        @Override
+	        public void onClick(DialogInterface dialog, int which) {
+	            finish();
+	        }
+
+	    })
+	    .setNegativeButton("back",  new DialogInterface.OnClickListener()
+	    {
+	        @Override
+	        public void onClick(DialogInterface dialog, int which) {  
+	        }
+
+	    })
+	    .show();
+			return ;
 		}else{
 			String msg =(isNewNote == 0)? "Save the updated ?" : "Save the new note ?";
 		    new AlertDialog.Builder(this)
@@ -273,7 +317,7 @@ public class NoteActivity extends Activity {
 		        @Override
 		        public void onClick(DialogInterface dialog, int which) {
 		        	update_delete_Note(null);
-		            finish();
+		            //finish();
 		        }
 	
 		    })
@@ -287,5 +331,26 @@ public class NoteActivity extends Activity {
 		    })
 		    .show();
 		}
+	}
+	
+	public static void buttonEffect(View button){
+	    button.setOnTouchListener(new OnTouchListener() {
+
+	        public boolean onTouch(View v, MotionEvent event) {
+	            switch (event.getAction()) {
+	                case MotionEvent.ACTION_DOWN: {
+	                    v.getBackground().setColorFilter(Color.BLACK,PorterDuff.Mode.SRC_ATOP);
+	                    v.invalidate();
+	                    break;
+	                }
+	                case MotionEvent.ACTION_UP: {
+	                    v.getBackground().clearColorFilter();
+	                    v.invalidate();
+	                    break;
+	                }
+	            }
+	            return false;
+	        }
+	    });
 	}
 }

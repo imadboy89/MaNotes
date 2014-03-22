@@ -1,20 +1,12 @@
 package com.imad.manotes;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
-
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.R.integer;
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Typeface;
 import android.util.Base64;
 import android.util.Log;
 @SuppressWarnings("serial") 
@@ -54,7 +46,11 @@ public class Note implements Serializable{
 		this.cat = cat;
 		this.color = color;
 	}
-
+	public Note() {
+		// TODO Auto-generated constructor stub
+		super();
+		this.id = -1;
+	}
 	public int getIsSynch() {
 		return isSynch;
 	}
@@ -68,11 +64,7 @@ public class Note implements Serializable{
 	public void setId_online(int id_online) {
 		this.id_online = id_online;
 	}
-	public Note() {
-		// TODO Auto-generated constructor stub
-		super();
-		this.id = -1;
-	}
+
 	public String getFormatedDate(String date_str){
 		Date date = null;
 		try {
@@ -181,10 +173,21 @@ public class Note implements Serializable{
 	}
 	public int delete(Context cntxt) {
 		DAO dao = new DAO(cntxt);
-		int res = dao.delete(this.table_name, "id = "+this.getId()) ;
+		String where = (this.getId()>0) ? "id = "+this.getId() : "id_online = "+this.getId_online() ;
+		int res = dao.delete(this.table_name, where) ;
 		return res;
 	}
-	
+	public int toTrash(Context cntxt) {
+		DAO dao = new DAO(cntxt);
+		String where = (this.getId()>0) ? "id = "+this.getId() : "id_online = "+this.getId_online() ;
+		int res = dao.delete(this.table_name, where) ;
+		return res;
+	}
+	public boolean isDuplecate(Context cntxt) {
+		DAO dao = new DAO(cntxt);
+		String where = "note='"+this.getNote()+"' and title='"+this.getTitle()+"'";
+		return dao.isDuplecate("notes", where);
+	}
 	public String toJSON(){
 		String result = "";
 		String _note="",_title="";
@@ -242,7 +245,8 @@ public class Note implements Serializable{
 			this.note = note;
 			this.date_added = (String) nto.get("date_added");
 			//this.id = (String) nto.get(id);
-			if(this.id_online==0) this.id_online= Integer.parseInt((String) nto.get("id_online"));
+			//if(this.id_online==0) this.id_online= Integer.parseInt((String) nto.get("id_online"));
+			this.id_online= Integer.parseInt((String) nto.get("id_online"));
 			this.cat = Integer.parseInt((String) nto.get("cat"));
 			this.color = (String) nto.get("color");
 			this.date_updated = (String) nto.get("date_updated");
